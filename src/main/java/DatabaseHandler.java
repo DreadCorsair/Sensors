@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 
 public class DatabaseHandler
 {
@@ -17,8 +18,10 @@ public class DatabaseHandler
         _password = password;
     }
 
-    public void ExecuteQuery(String query)
+    public ArrayList<Point> ExecuteQuery(String query)
     {
+        ArrayList<Point> pointList = new ArrayList<Point>();
+
         try
         {
             _con = DriverManager.getConnection(_url, _user, _password);
@@ -27,7 +30,21 @@ public class DatabaseHandler
 
             while (_rs.next())
             {
-                System.out.println(_rs.getInt(1));
+                try
+                {
+                    long t = _rs.getDate(1).getTime() + _rs.getTime(1).getTime() + _rs.getInt(2);
+                    double v = _rs.getDouble(3);
+
+                    Point point = new Point();
+                    point.time = t;
+                    point.value = v;
+
+                    pointList.add(point);
+                }
+                catch (NullPointerException nullEx)
+                {
+                    nullEx.printStackTrace();
+                }
             }
         }
         catch (SQLException sqlEx)
@@ -40,5 +57,7 @@ public class DatabaseHandler
             try { _stmt.close(); } catch(SQLException se) { }
             try { _rs.close(); } catch(SQLException se) { }
         }
+
+        return pointList;
     }
 }
