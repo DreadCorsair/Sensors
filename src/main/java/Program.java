@@ -13,9 +13,9 @@ public class Program
 
         ArrayList<Point> result = new ArrayList<Point>();
 
-        for(int i = 50; i < 51; i++)
+        for(int i = 50; i < 62; i++)
         {
-            for(int j = 1; j < 2; j++)
+            for(int j = 1; j < 37; j++)
             {
                 String query = String.format("SELECT Sample_TDate_%d, Sample_MSec_%d, Sample_Value_%d " +
                         "FROM akhz1_data_%d WHERE Signal_Index=1", j, j, j, i);

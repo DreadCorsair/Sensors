@@ -11,6 +11,10 @@ public class DatabaseHandler
     private Statement _stmt;
     private ResultSet _rs;
 
+    private static final int DATE_COLUMN  = 1;
+    private static final int MSEC_COLUMN  = 2;
+    private static final int VALUE_COLUMN = 3;
+
     public DatabaseHandler(String url, String user, String password)
     {
         _url = url;
@@ -28,32 +32,33 @@ public class DatabaseHandler
             _stmt = _con.createStatement();
             _rs = _stmt.executeQuery(query);
 
-            while (_rs.next())
+            while(_rs.next())
             {
                 try
                 {
-                    long t = _rs.getDate(1).getTime() + _rs.getTime(1).getTime() + _rs.getInt(2);
-                    float v = _rs.getFloat(3);
+                    long dateInMs = _rs.getDate(DATE_COLUMN).getTime();
+                    long timeInMs = _rs.getTime(DATE_COLUMN).getTime();
+                    long ms = _rs.getInt(MSEC_COLUMN);
 
-                    Point point = new Point(t, v);
+                    long time = dateInMs + timeInMs + ms;
+                    float value = _rs.getFloat(VALUE_COLUMN);
+
+                    Point point = new Point(time, value);
 
                     pointList.add(point);
                 }
-                catch (NullPointerException nullEx)
+                catch(NullPointerException nullEx)
                 {
                     nullEx.printStackTrace();
                 }
             }
         }
-        catch (SQLException sqlEx)
-        {
-            sqlEx.printStackTrace();
-        }
+        catch(SQLException sqlEx) { sqlEx.printStackTrace(); }
         finally
         {
-            try { _con.close(); } catch(SQLException se) { }
+            try { _con.close();  } catch(SQLException se) { }
             try { _stmt.close(); } catch(SQLException se) { }
-            try { _rs.close(); } catch(SQLException se) { }
+            try { _rs.close();   } catch(SQLException se) { }
         }
 
         return pointList;
