@@ -9,34 +9,12 @@ public class Program
     public static void main(String [ ] args)
     {
         DatabaseHandler database = new DatabaseHandler(DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD);
-//        "SELECT Sample_TDate_1, Sample_MSec_1, Sample_Value_1 FROM akhz1_data_50 WHERE Signal_Index=1"
 
-        ArrayList<Point> result = new ArrayList<Point>();
+        ArrayList<Point> akhz1 = database.GetAkhz1();
 
-        for(int i = 50; i < 62; i++)
+        for(int i = 0; i < akhz1.size(); i++)
         {
-            for(int j = 1; j < 37; j++)
-            {
-                String query = String.format("SELECT Sample_TDate_%d, Sample_MSec_%d, Sample_Value_%d " +
-                        "FROM akhz1_data_%d WHERE Signal_Index=1", j, j, j, i);
-
-                System.out.println(query);
-
-                ArrayList<Point> pl = database.ExecuteQuery(query);
-
-                result.addAll(pl);
-            }
-        }
-
-        System.out.println("SORTING...");
-
-        result.sort(new TimeComparator());
-
-        System.out.println("SORTED!!!!");
-
-        for(int i = 0; i < result.size(); i++)
-        {
-            System.out.println(i + " " + result.get(i).toString());
+            System.out.println(i + " " + akhz1.get(i).toString());
         }
     }
 }

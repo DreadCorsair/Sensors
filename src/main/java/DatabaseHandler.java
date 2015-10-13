@@ -14,6 +14,7 @@ public class DatabaseHandler
     private static final int DATE_COLUMN  = 1;
     private static final int MSEC_COLUMN  = 2;
     private static final int VALUE_COLUMN = 3;
+    private final int NUMBER_OF_VALUES_IN_TABLE = 36;
 
     public DatabaseHandler(String url, String user, String password)
     {
@@ -22,7 +23,34 @@ public class DatabaseHandler
         _password = password;
     }
 
-    public ArrayList<Point> ExecuteQuery(String query)
+    public ArrayList<Point> GetAkhz1()
+    {
+        final int firstTable = 50;
+        final int lastTable = 61;
+
+        ArrayList<Point> akhz1 = new ArrayList<Point>();
+        GeneratePointList("akhz1_data", firstTable, lastTable, akhz1);
+
+        akhz1.sort(new TimeComparator());
+
+        return akhz1;
+    }
+
+    private void GeneratePointList(String tableNamePrefix, int startTablePostfix, int finishTablePostfix, ArrayList<Point> toList)
+    {
+        for(int i = startTablePostfix; i <= finishTablePostfix; i++)
+        {
+            for(int j = 1; j <= NUMBER_OF_VALUES_IN_TABLE; j++)
+            {
+                String query = String.format("SELECT Sample_TDate_%d, Sample_MSec_%d, Sample_Value_%d " +
+                        "FROM %s_%d WHERE Signal_Index=1", j, j, j, tableNamePrefix, i);
+
+                toList.addAll(GetPointsFromTable(query));
+            }
+        }
+    }
+
+    private ArrayList<Point> GetPointsFromTable(String query)
     {
         ArrayList<Point> pointList = new ArrayList<Point>();
 
