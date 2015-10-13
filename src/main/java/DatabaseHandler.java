@@ -33,11 +33,9 @@ public class DatabaseHandler
                 try
                 {
                     long t = _rs.getDate(1).getTime() + _rs.getTime(1).getTime() + _rs.getInt(2);
-                    double v = _rs.getDouble(3);
+                    float v = _rs.getFloat(3);
 
-                    Point point = new Point();
-                    point.time = t;
-                    point.value = v;
+                    Point point = new Point(t, v);
 
                     pointList.add(point);
                 }
