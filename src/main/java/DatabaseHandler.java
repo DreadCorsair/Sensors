@@ -14,7 +14,7 @@ public class DatabaseHandler
     private static final int DATE_COLUMN  = 1;
     private static final int MSEC_COLUMN  = 2;
     private static final int VALUE_COLUMN = 3;
-    private final int NUMBER_OF_VALUES_IN_TABLE = 36;
+    private static final int NUMBER_OF_VALUES_IN_TABLE = 36;
 
     public DatabaseHandler(String url, String user, String password)
     {
@@ -25,35 +25,33 @@ public class DatabaseHandler
 
     public ArrayList<Point> GetAkhz1()
     {
-        final int firstTable = 50;
-        final int lastTable = 61;
+        final int firstTablePostfix = 50;
+        final int lastTablePostfix = 61;
 
         ArrayList<Point> akhz1 = new ArrayList<Point>();
-        GeneratePointList("akhz1_data", firstTable, lastTable, akhz1);
+        FillTable(akhz1, "akhz1_data", firstTablePostfix, lastTablePostfix);
 
         akhz1.sort(new TimeComparator());
 
         return akhz1;
     }
 
-    private void GeneratePointList(String tableNamePrefix, int startTablePostfix, int finishTablePostfix, ArrayList<Point> toList)
+    private void FillTable(ArrayList<Point> toList, String tableNamePrefix, int firstTablePostfix, int lastTablePostfix)
     {
-        for(int i = startTablePostfix; i <= finishTablePostfix; i++)
+        for(int currentTablePostfix = firstTablePostfix; currentTablePostfix <= lastTablePostfix; currentTablePostfix++)
         {
-            for(int j = 1; j <= NUMBER_OF_VALUES_IN_TABLE; j++)
+            for(int currentNumberOfValues = 1; currentNumberOfValues <= NUMBER_OF_VALUES_IN_TABLE; currentNumberOfValues++)
             {
-                String query = String.format("SELECT Sample_TDate_%d, Sample_MSec_%d, Sample_Value_%d " +
-                        "FROM %s_%d WHERE Signal_Index=1", j, j, j, tableNamePrefix, i);
+                String query = String.format("SELECT Sample_TDate_%d, Sample_MSec_%d, Sample_Value_%d FROM %s_%d WHERE Signal_Index=1",
+                        currentNumberOfValues, currentNumberOfValues, currentNumberOfValues, tableNamePrefix, currentTablePostfix);
 
-                toList.addAll(GetPointsFromTable(query));
+                CopyPointsFromTable(query, toList);
             }
         }
     }
 
-    private ArrayList<Point> GetPointsFromTable(String query)
+    private void CopyPointsFromTable(String query, ArrayList<Point> toList)
     {
-        ArrayList<Point> pointList = new ArrayList<Point>();
-
         try
         {
             _con = DriverManager.getConnection(_url, _user, _password);
@@ -71,14 +69,9 @@ public class DatabaseHandler
                     long time = dateInMs + timeInMs + ms;
                     float value = _rs.getFloat(VALUE_COLUMN);
 
-                    Point point = new Point(time, value);
-
-                    pointList.add(point);
+                    toList.add(new Point(time, value));
                 }
-                catch(NullPointerException nullEx)
-                {
-                    nullEx.printStackTrace();
-                }
+                catch(NullPointerException nullEx) { nullEx.printStackTrace(); }
             }
         }
         catch(SQLException sqlEx) { sqlEx.printStackTrace(); }
@@ -88,7 +81,5 @@ public class DatabaseHandler
             try { _stmt.close(); } catch(SQLException se) { }
             try { _rs.close();   } catch(SQLException se) { }
         }
-
-        return pointList;
     }
 }
